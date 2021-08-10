@@ -1,0 +1,10 @@
+flask
+flask_login
+flask_track_usage
+flask_jwt_extended
+flask_sqlalchemy
+os
+wtforms
+datetime
+time
+werkzeug.security
