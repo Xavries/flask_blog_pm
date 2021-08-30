@@ -6,8 +6,8 @@ from flask_login import LoginManager
 from db import db, app
 #from models import User
 
-from flask_track_usage import TrackUsage
-from flask_track_usage.storage.sql import SQLStorage
+#from flask_track_usage import TrackUsage
+#from flask_track_usage.storage.sql import SQLStorage
 
 from flask_jwt_extended import JWTManager#, jwt_required, get_jwt_identity
 
@@ -54,6 +54,6 @@ def user_lookup_callback(_jwt_header, jwt_data):
 
 if __name__ == "__main__":
     
-    track_storage = TrackUsage(app, SQLStorage(db=db))
+    #track_storage = TrackUsage(app, SQLStorage(db=db))
     app.run()
 

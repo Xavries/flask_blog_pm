@@ -15,11 +15,21 @@ def slugify(strin):
     pattern = r'[^\w+]'
     return re.sub(pattern, '-', strin)
 
+
 class PostLike(db.Model):
     #__table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+'''
+#for MongoDB
+class PostLike(db.Document):
+    id = db.IntField(primary_key=True)
+    user_id = db.IntField()
+    post_id = db.IntField()
+
+'''
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -43,13 +53,25 @@ class Post(db.Model):
     
     def __repr__(self):
         return f'<Post id:{self.id}, title: {self.title}>'
+'''
+#for MongoDB
+class Post(db.Document):
+    id = db.IntField(primary_key=True)
+    title = db.StringField(max_length=255)
+    slug = db.StringField(max_length=255)
+    body = db.StringField(max_length=500)
+    created = db.DateTimeField()
+    today = db.StringField(max_length=255)
+    likes_today = db.IntField()
+'''
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(200), unique=True)
     username = db.Column(db.String(200))
     password = db.Column(db.String(200))
-    token = db.Column(db.String(250), unique=True)
+    token = db.Column(db.String(400), unique=True)
     active = db.Column(db.Boolean())
     last_login_at = db.Column(db.DateTime())
     last_request_at = db.Column(db.DateTime())
@@ -58,19 +80,19 @@ class User(db.Model, UserMixin):
     login_count = db.Column(db.Integer)
     liked = db.relationship('PostLike', foreign_keys='PostLike.user_id',
                             backref=db.backref('users'), lazy='dynamic')
-    
-    '''def __init__(self, **kwargs):
+    '''
+    def __init__(self, **kwargs):
         self.name = kwargs.get('name')
         self.email = kwargs.get('email')
-        self.password = bcrypt.hash(kwargs.get('password'))'''
-        
-    '''
+        self.password = bcrypt.hash(kwargs.get('password'))
+        '''
+    
     # method for creating tokens
     def get_token(self, expire_time=2400):
         expire_delta = timedelta(expire_time)
         token = create_access_token(identity=self.id, expires_delta=expire_delta)
         return token
-    '''
+    
     
     # this method is already defined with UserMixin
     # and right now it is using user id to load user
@@ -99,3 +121,19 @@ class User(db.Model, UserMixin):
     def has_liked_post(self, post):
         return PostLike.query.filter(PostLike.user_id == self.id, PostLike.post_id == post.id).count() > 0
 
+'''
+#for MongoDB
+class User(db.Document, UserMixin):
+    id = db.IntField(primary_key=True)
+    email = db.StringField(max_length=255)
+    username = db.StringField(max_length=255)
+    password = db.StringField(max_length=255)
+    token = db.StringField(max_length=255, unique=True)
+    last_login_at = db.DateTimeField()
+    last_request_at = db.DateTimeField()
+    #liked = db.ReferenceField('PostLike', 
+    #liked = db.User.aggregate([{$lookup: {from: "PostLike",
+    #        localField: "id",
+    #        foreignField: "user_id",
+    #        as: "liked"}}])
+'''
